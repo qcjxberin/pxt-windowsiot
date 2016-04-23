@@ -8,7 +8,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace CloudClient
 {
-    class DataEntity
+    class DataRecord
     {
         public int Light;
     }
@@ -99,7 +99,8 @@ namespace CloudClient
         {
             try
             {
-                var data = JsonConvert.DeserializeObject<DataEntity>(json);
+                var data = JsonConvert.DeserializeObject<DataRecord>(json);
+                SendDataToCloud(data);
                 this.textBlock.Text = data.Light.ToString();
             }
             catch (JsonException)
