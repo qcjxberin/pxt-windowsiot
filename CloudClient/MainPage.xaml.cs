@@ -14,11 +14,24 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Windows.Devices.Enumeration;
+using System.Collections.ObjectModel;
+using Windows.ApplicationModel.Core;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
+#pragma warning disable 4014
+
 namespace CloudClient
 {
+    public class SerialDevice
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+
+        public bool Active { get; set; }
+    }
+
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
@@ -27,40 +40,60 @@ namespace CloudClient
         public MainPage()
         {
             this.InitializeComponent();
-            this.textBlock.Text = "...";
+
+            SerialDevices = new ObservableCollection<SerialDevice>();
+            Data = new ObservableCollection<int>();
+
             work();
         }
+
+        // Dictionary<string, string> serialDevices;
+        public ObservableCollection<SerialDevice> SerialDevices { get; set; }
+
+        public ObservableCollection<int> Data{ get; set; }
 
         async Task work()
         {
             var serialDeviceSelector = Windows.Devices.SerialCommunication.SerialDevice.GetDeviceSelector();
 
-            // var watcher = Windows.Devices.Enumeration.DeviceInformation.CreateWatcher(serialDeviceSelector, [] as any);
-            var devices = await Windows.Devices.Enumeration.DeviceInformation.FindAllAsync(serialDeviceSelector);
-
-            var count = devices.Count;
-            foreach (var device in devices)
+            var watcher = Windows.Devices.Enumeration.DeviceInformation.CreateWatcher(serialDeviceSelector);
+            watcher.Added += (DeviceWatcher sender, DeviceInformation args) =>
             {
-                Debug.WriteLine(string.Format("Found device '{0}'", device.Name));
-                foreach (var prop in device.Properties)
+                if (args.Name.Contains("mbed"))
                 {
-                    Debug.WriteLine("{0}-{1}", prop.Key, prop.Value);
+                    Debug.WriteLine(string.Format("Found device '{0}'", args.Name));
+                    RunOnGUI(
+                        () =>
+                        {
+                            SerialDevices.Add(new SerialDevice { Id = args.Id, Name = args.Name });
+                        });
+                    this.Process(args.Id);
                 }
-                if (device.Name.Contains("mbed"))
-                {
-                    this.Process(device.Id);
-                }
-            }
-
-            Debug.WriteLine("Here");
-
-            var watcher = Windows.Devices.Enumeration.DeviceInformation.CreateWatcher();
-            watcher.Added += DeviceAdded;
+            };
+            watcher.Removed += (DeviceWatcher sender, DeviceInformationUpdate args) =>
+            {
+                RunOnGUI(
+                    () =>
+                    {
+                        var first = SerialDevices.FirstOrDefault(_ => _.Id == args.Id);
+                        if (first != null)
+                        {
+                            SerialDevices.Remove(first);
+                        }
+                    });
+                Debug.WriteLine(string.Format("removed device '{0}'", args.Id));
+                
+            };
+            watcher.Start();
         }
 
-        private static void DeviceAdded(Windows.Devices.Enumeration.DeviceWatcher sender, Windows.Devices.Enumeration.DeviceInformation args)
+        private void RunOnGUI(Action action)
         {
-            Debug.WriteLine("Device added: {0}", args.Id);
+            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal,
+                () =>
+                {
+                    action();
+                });
         }
     }
 }

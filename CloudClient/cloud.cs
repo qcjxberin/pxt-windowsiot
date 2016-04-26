@@ -30,7 +30,7 @@ namespace CloudClient
         {
             if (counter == 0)
             {
-                var connectionString = "DefaultEndpointsProtocol=https;AccountName=arturladu;AccountKey=8pbadC7VszHLRxnXHhZdJ44LxiSDjeVKGJX6VDh0lQIrZ/84WscsOPmpKs39PxzZIXmKJX0YmQsIM3Y+cWKxMg==;EndpointSuffix=core.windows.net;";
+                var connectionString = "DefaultEndpointsProtocol=https;AccountName=arturladu;AccountKey=7pbadC7VszHLRxnXHhZdJ44LxiSDjeVKGJX6VDh0lQIrZ/84WscsOPmpKs39PxzZIXmKJX0YmQsIM3Y+cWKxMg==;EndpointSuffix=core.windows.net;";
 
                 CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
                 CloudTableClient tableClient = storageAccount.CreateCloudTableClient();

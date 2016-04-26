@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml.Controls;
 
 namespace CloudClient
@@ -26,6 +27,8 @@ namespace CloudClient
         public async Task Process(string id)
         {
             var device = await Windows.Devices.SerialCommunication.SerialDevice.FromIdAsync(id);
+            device.BaudRate = 115200;
+
             var currentStr = "";
             State state = State.Outside_of_object;
             while (true)
@@ -65,7 +68,7 @@ namespace CloudClient
                                             break;
                                         case State.Inside_object:
                                             currentStr += c;
-                                            HandleJSONObject(currentStr);
+                                            await HandleJSONObject(currentStr);
                                             // Nested are not supported
                                             state = State.Outside_of_object;
                                             currentStr = "";
@@ -90,22 +93,27 @@ namespace CloudClient
                 }
                 catch (Exception)
                 {
-                    // Most likely, the device just got disconnected. Ignore.
+                    device.Dispose();
+                    break;
                 }
             }
         }
 
-        private void HandleJSONObject(string json)
+        private async Task HandleJSONObject(string json)
         {
             try
             {
                 var data = JsonConvert.DeserializeObject<DataRecord>(json);
-                SendDataToCloud(data);
-                this.textBlock.Text = data.Light.ToString();
+                await SendDataToCloud(data);
+                RunOnGUI(() =>
+                {
+                    this.Data.Insert(0, data.Light);
+                    this.data.SelectedIndex = 0;
+                });
             }
             catch (JsonException)
             {
-                this.textBlock.Text = "bad data";
+                // We have bad data, ignore
             }
 
         }

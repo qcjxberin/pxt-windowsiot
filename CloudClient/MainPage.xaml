@@ -5,10 +5,28 @@
     xmlns:local="using:CloudClient"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    DataContext="{Binding RelativeSource={RelativeSource Self}}"
+    mc:Ignorable="d" BorderThickness="3">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <TextBlock x:Name="textBlock" HorizontalAlignment="Center" Margin="0" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="48"/>
+    <Grid Background="{ThemeResource AppBarBackgroundThemeBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="210"/>
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <TextBlock x:Name="textBlock1" Grid.Row ="0" Grid.Column="0" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="Serial devices:" VerticalAlignment="Center" FontSize="24"/>
+        <ListView x:Name="deviceList" Grid.Row ="1" Grid.Column="0" HorizontalAlignment="Left" MinHeight="100" Width="200" Margin="10,0,0,0" VerticalAlignment="Top" FontSize="48" SelectionMode="None" 
+                  ItemsSource="{Binding SerialDevices}"
+                  DisplayMemberPath="Name"
+            BorderBrush="Black" BorderThickness="1">
+        </ListView>
+
+        <TextBlock x:Name="textBlock2" Grid.Row ="0" Grid.Column="1" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="Data:" VerticalAlignment="Center" FontSize="24"/>
+        <ListView x:Name="data" Grid.Row ="1" Grid.Column="1" HorizontalAlignment="Left" MinHeight="100" Width="200" Margin="10,0,0,10" VerticalAlignment="Top" FontSize="48" 
+                  ItemsSource="{Binding Data}" BorderBrush="Black" BorderThickness="1"/>
 
     </Grid>
 </Page>
