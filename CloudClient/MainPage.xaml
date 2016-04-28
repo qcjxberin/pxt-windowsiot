@@ -11,7 +11,8 @@
     <Grid Background="{ThemeResource AppBarBackgroundThemeBrush}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="210"/>
-            <ColumnDefinition />
+            <ColumnDefinition Width="210"/>
+            <ColumnDefinition Width="210"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="100" />
@@ -27,6 +28,7 @@
         <TextBlock x:Name="textBlock2" Grid.Row ="0" Grid.Column="1" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="Data:" VerticalAlignment="Center" FontSize="24"/>
         <ListView x:Name="data" Grid.Row ="1" Grid.Column="1" HorizontalAlignment="Left" MinHeight="100" Width="200" Margin="10,0,0,10" VerticalAlignment="Top" FontSize="48" 
                   ItemsSource="{Binding Data}" BorderBrush="Black" BorderThickness="1"/>
+        <Button x:Name="startStopButton" Content="Start" Grid.Row ="1" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,0,0,0" />
 
     </Grid>
 </Page>

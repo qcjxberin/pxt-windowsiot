@@ -107,6 +107,7 @@ namespace CloudClient
                 await SendDataToCloud(data);
                 RunOnGUI(() =>
                 {
+                    UpdateStartStopButton();
                     this.Data.Insert(0, data.Light);
                     this.data.SelectedIndex = 0;
                 });

@@ -28,6 +28,11 @@ namespace CloudClient
 
         async Task SendDataToCloud(DataRecord record)
         {
+            if (this.buttonStateIsStart)
+            {
+                return;
+            }
+
             if (counter == 0)
             {
                 var connectionString = "DefaultEndpointsProtocol=https;AccountName=arturladu;AccountKey=7pbadC7VszHLRxnXHhZdJ44LxiSDjeVKGJX6VDh0lQIrZ/84WscsOPmpKs39PxzZIXmKJX0YmQsIM3Y+cWKxMg==;EndpointSuffix=core.windows.net;";

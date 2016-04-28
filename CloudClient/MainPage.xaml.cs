@@ -44,7 +44,32 @@ namespace CloudClient
             SerialDevices = new ObservableCollection<SerialDevice>();
             Data = new ObservableCollection<int>();
 
+            UpdateStartStopButton();
+
+            this.startStopButton.Click += StartStopButton_Click;
+
             work();
+        }
+
+        bool buttonStateIsStart = true;
+
+        void UpdateStartStopButton()
+        {
+            if (buttonStateIsStart)
+            {
+                this.startStopButton.Content = "Start Sending To Cloud";
+            }
+            else
+            {
+                this.startStopButton.Content = "Stop Sending To Cloud";
+            }
+            this.startStopButton.IsEnabled = Data.Any();
+        }
+
+        private void StartStopButton_Click(object sender, RoutedEventArgs e)
+        {
+            buttonStateIsStart = !buttonStateIsStart;
+            UpdateStartStopButton();
         }
 
         // Dictionary<string, string> serialDevices;
