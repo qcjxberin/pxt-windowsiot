@@ -16,17 +16,18 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="100" />
+            <RowDefinition Height="100" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <TextBlock x:Name="textBlock1" Grid.Row ="0" Grid.Column="0" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="Serial devices:" VerticalAlignment="Center" FontSize="24"/>
-        <ListView x:Name="deviceList" Grid.Row ="1" Grid.Column="0" HorizontalAlignment="Left" MinHeight="100" Width="200" Margin="10,0,0,0" VerticalAlignment="Top" FontSize="48" SelectionMode="None" 
+        <TextBlock x:Name="textBlock1" Grid.Row ="1" Grid.Column="0" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="Serial devices:" VerticalAlignment="Center" FontSize="24"/>
+        <ListView x:Name="deviceList" Grid.Row ="2" Grid.Column="0" HorizontalAlignment="Left" MinHeight="100" Width="200" Margin="10,0,0,0" VerticalAlignment="Top" FontSize="48" SelectionMode="None" 
                   ItemsSource="{Binding SerialDevices}"
                   DisplayMemberPath="Name"
             BorderBrush="Black" BorderThickness="1">
         </ListView>
 
-        <TextBlock x:Name="textBlock2" Grid.Row ="0" Grid.Column="1" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="Data:" VerticalAlignment="Center" FontSize="24"/>
-        <ListView x:Name="data" Grid.Row ="1" Grid.Column="1" HorizontalAlignment="Left" MinHeight="100" Width="200" Margin="10,0,0,10" VerticalAlignment="Top" FontSize="48" 
+        <TextBlock x:Name="textBlock2" Grid.Row ="1" Grid.Column="1" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="Data:" VerticalAlignment="Center" FontSize="24"/>
+        <ListView x:Name="data" Grid.Row ="2" Grid.Column="1" HorizontalAlignment="Left" MinHeight="100" Width="200" Margin="10,0,0,10" VerticalAlignment="Top" FontSize="48" 
                   ItemsSource="{Binding Data}" BorderBrush="Black" BorderThickness="1"/>
         <Button x:Name="startStopButton" Content="Start" Grid.Row ="1" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,0,0,0" />
 
