@@ -17,6 +17,9 @@ using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using System.Collections.ObjectModel;
 using Windows.ApplicationModel.Core;
+using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Media.Animation;
+
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -37,9 +40,37 @@ namespace CloudClient
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        Storyboard serialDataTransfer;
+        Storyboard cloudDataTransfer;
+
+        static Storyboard MakeDataTransferStoryBoard(UIElement uiElement)
+        {
+            var storyBoard = new Storyboard();
+            TranslateTransform moveTransform = new TranslateTransform();
+            uiElement.RenderTransform = moveTransform;
+            Duration duration = new Duration(TimeSpan.FromSeconds(2));
+            DoubleAnimation myDoubleAnimationX = new DoubleAnimation();
+            myDoubleAnimationX.Duration = duration;
+            myDoubleAnimationX.To = 125;
+            storyBoard.Children.Add(myDoubleAnimationX);
+            Storyboard.SetTarget(myDoubleAnimationX, moveTransform);
+            Storyboard.SetTargetProperty(myDoubleAnimationX, "X");
+            storyBoard.AutoReverse = false;
+            storyBoard.RepeatBehavior = RepeatBehavior.Forever;
+            return storyBoard;
+        }
+
         public MainPage()
         {
             this.InitializeComponent();
+
+            imgWire1.Source = new BitmapImage(new Uri("ms-appx:///Assets/wire-disconnected.png"));
+
+            serialDataTransfer = MakeDataTransferStoryBoard(this.imgBall1);
+            //serialDataTransfer.Begin();
+
+            cloudDataTransfer = MakeDataTransferStoryBoard(this.imgBall2);
+            //cloudDataTransfer.Begin();
 
             SerialDevices = new ObservableCollection<SerialDevice>();
             Data = new ObservableCollection<int>();
@@ -75,7 +106,7 @@ namespace CloudClient
         // Dictionary<string, string> serialDevices;
         public ObservableCollection<SerialDevice> SerialDevices { get; set; }
 
-        public ObservableCollection<int> Data{ get; set; }
+        public ObservableCollection<int> Data { get; set; }
 
         async Task work()
         {
@@ -91,8 +122,9 @@ namespace CloudClient
                         () =>
                         {
                             SerialDevices.Add(new SerialDevice { Id = args.Id, Name = args.Name });
+                            this.imgWire1.Source = new BitmapImage(new Uri("ms-appx:///Assets/wire0.png"));
                         });
-                    this.Process(args.Id);
+                    // this.Process(args.Id);
                 }
             };
             watcher.Removed += (DeviceWatcher sender, DeviceInformationUpdate args) =>
@@ -104,10 +136,14 @@ namespace CloudClient
                         if (first != null)
                         {
                             SerialDevices.Remove(first);
+                            if (SerialDevices.Count == 0)
+                            {
+                                imgWire1.Source = new BitmapImage(new Uri("ms-appx:///Assets/wire-disconnected.png"));
+                            }
                         }
                     });
                 Debug.WriteLine(string.Format("removed device '{0}'", args.Id));
-                
+
             };
             watcher.Start();
         }

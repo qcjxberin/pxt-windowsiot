@@ -8,28 +8,48 @@
     DataContext="{Binding RelativeSource={RelativeSource Self}}"
     mc:Ignorable="d" BorderThickness="3">
 
+
     <Grid Background="{ThemeResource AppBarBackgroundThemeBrush}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="210"/>
-            <ColumnDefinition Width="210"/>
-            <ColumnDefinition Width="210"/>
+            <ColumnDefinition Width="118"/>
+            <ColumnDefinition Width="190"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="190"/>
+            <ColumnDefinition Width="100"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="100" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="200" />
             <RowDefinition Height="100" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <TextBlock x:Name="textBlock1" Grid.Row ="1" Grid.Column="0" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="Serial devices:" VerticalAlignment="Center" FontSize="24"/>
-        <ListView x:Name="deviceList" Grid.Row ="2" Grid.Column="0" HorizontalAlignment="Left" MinHeight="100" Width="200" Margin="10,0,0,0" VerticalAlignment="Top" FontSize="48" SelectionMode="None" 
+
+        <Grid.RenderTransform>
+            <CompositeTransform ></CompositeTransform>
+        </Grid.RenderTransform>
+
+        <Image x:Name="imgMicrobit" Source="Assets\microbit.png" Grid.Row ="1" Grid.Column="0" HorizontalAlignment="Center" Height="96" Margin="4,4,0,0" Grid.RowSpan="2" VerticalAlignment="Top" />
+        <Image x:Name="imgWire1" Source="Assets\Wire0.png" Grid.Row ="1" Grid.Column="1" HorizontalAlignment="Center" Height="96" Margin="4,4,0,0" Grid.RowSpan="2" VerticalAlignment="Top" />
+        <Image x:Name="imgBall1" Source="Assets\ball.png" Grid.Row ="1" Grid.Column="1" HorizontalAlignment="Center" Height="96" Margin="4,4,0,0" Grid.RowSpan="2" VerticalAlignment="Top" />
+
+        <Image x:Name="imgComputer" Source="Assets\computer.png" Grid.Row ="1" Grid.Column="2" HorizontalAlignment="Center" Height="96" Margin="4,4,0,0" Grid.RowSpan="2" VerticalAlignment="Top"/>
+
+        <Image x:Name="imgWire2" Source="Assets\Wire0.png" Grid.Row ="1" Grid.Column="3" HorizontalAlignment="Center" Height="96" Margin="4,4,0,0" Grid.RowSpan="2" VerticalAlignment="Top"/>
+        <Image x:Name="imgBall2" Source="Assets\ball.png" Grid.Row ="1" Grid.Column="3" HorizontalAlignment="Center" Height="96" Margin="4,4,0,0" Grid.RowSpan="2" VerticalAlignment="Top"/>
+
+        <Image x:Name="imgCloud" Source="Assets\cloud.png" Grid.Row ="1" Grid.Column="4" HorizontalAlignment="Center" Height="96" Margin="4,4,0,0" Grid.RowSpan="2" VerticalAlignment="Top"/>
+
+        <TextBlock x:Name="textBlock1" Grid.Row ="2" Grid.Column="0" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="Serial devices:" VerticalAlignment="Center" FontSize="24"/>
+        <ListView x:Name="deviceList" Grid.Row ="22" Grid.Column="0" HorizontalAlignment="Left" MinHeight="100" Width="200" Margin="10,0,0,0" VerticalAlignment="Top" FontSize="48" SelectionMode="None" 
                   ItemsSource="{Binding SerialDevices}"
                   DisplayMemberPath="Name"
             BorderBrush="Black" BorderThickness="1">
         </ListView>
 
-        <TextBlock x:Name="textBlock2" Grid.Row ="1" Grid.Column="1" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="Data:" VerticalAlignment="Center" FontSize="24"/>
+        <TextBlock x:Name="textBlock2" Grid.Row ="2" Grid.Column="1" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="Data:" VerticalAlignment="Center" FontSize="24"/>
         <ListView x:Name="data" Grid.Row ="2" Grid.Column="1" HorizontalAlignment="Left" MinHeight="100" Width="200" Margin="10,0,0,10" VerticalAlignment="Top" FontSize="48" 
                   ItemsSource="{Binding Data}" BorderBrush="Black" BorderThickness="1"/>
-        <Button x:Name="startStopButton" Content="Start" Grid.Row ="1" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,0,0,0" />
+        <Button x:Name="startStopButton" Content="Start" Grid.Row ="2" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,0,0,0" />
 
     </Grid>
 </Page>
