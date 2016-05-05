@@ -19,6 +19,7 @@ using System.Collections.ObjectModel;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Media.Animation;
+using Windows.Devices.Usb;
 
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -27,6 +28,16 @@ using Windows.UI.Xaml.Media.Animation;
 
 namespace CloudClient
 {
+    [DebuggerDisplay("Name = {Name}, IsEnabled = {IsEnabled}")]
+    public class UsbDevice
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+
+        public bool IsEnabled { get; set; }
+    }
+
+    [DebuggerDisplay("Name = {Name}, IsEnabled = {IsEnabled}")]
     public class SerialDevice
     {
         public string Id { get; set; }
@@ -40,15 +51,17 @@ namespace CloudClient
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        Storyboard serialDataTransfer;
-        Storyboard cloudDataTransfer;
+        private Storyboard serialDataTransfer;
+        private Storyboard cloudDataTransfer;
+        private string streamName;
+        private DispatcherTimer timer;
 
-        static Storyboard MakeDataTransferStoryBoard(UIElement uiElement)
+        static Storyboard MakeDataTransferStoryBoard(UIElement uiElement, double seconds)
         {
             var storyBoard = new Storyboard();
             TranslateTransform moveTransform = new TranslateTransform();
             uiElement.RenderTransform = moveTransform;
-            Duration duration = new Duration(TimeSpan.FromSeconds(2));
+            Duration duration = new Duration(TimeSpan.FromSeconds(seconds));
             DoubleAnimation myDoubleAnimationX = new DoubleAnimation();
             myDoubleAnimationX.Duration = duration;
             myDoubleAnimationX.To = 125;
@@ -60,92 +73,80 @@ namespace CloudClient
             return storyBoard;
         }
 
+        private async Task<string> GetStreamName()
+        {
+            // ARM runs headless
+            if (Windows.ApplicationModel.Package.Current.Id.Architecture == Windows.System.ProcessorArchitecture.Arm)
+            {
+                return string.Format("Stream_{0}", new Random().Next(1024 * 1024));
+            }
+
+            var changeDlg = new ChangeStreamNameDialog("");
+            await changeDlg.ShowAsync();
+            return changeDlg.StreamName;
+        }
+
         public MainPage()
         {
-            this.InitializeComponent();
-
-            imgWire1.Source = new BitmapImage(new Uri("ms-appx:///Assets/wire-disconnected.png"));
-
-            serialDataTransfer = MakeDataTransferStoryBoard(this.imgBall1);
-            //serialDataTransfer.Begin();
-
-            cloudDataTransfer = MakeDataTransferStoryBoard(this.imgBall2);
-            //cloudDataTransfer.Begin();
-
-            SerialDevices = new ObservableCollection<SerialDevice>();
+            this.streamName = "";
+            this.needToCreateNewStream = true;
+            this.usbDevices = new List<UsbDevice>();
+            this.serialDevices = new List<SerialDevice>();
             Data = new ObservableCollection<int>();
 
-            UpdateStartStopButton();
-
-            this.startStopButton.Click += StartStopButton_Click;
-
-            work();
-        }
-
-        bool buttonStateIsStart = true;
-
-        void UpdateStartStopButton()
-        {
-            if (buttonStateIsStart)
+            GetStreamName().ContinueWith((streamName) =>
             {
-                this.startStopButton.Content = "Start Sending To Cloud";
-            }
-            else
-            {
-                this.startStopButton.Content = "Stop Sending To Cloud";
-            }
-            this.startStopButton.IsEnabled = Data.Any();
-        }
+                this.streamName = streamName.Result;
 
-        private void StartStopButton_Click(object sender, RoutedEventArgs e)
-        {
-            buttonStateIsStart = !buttonStateIsStart;
-            UpdateStartStopButton();
-        }
+                this.InitializeComponent();
 
-        // Dictionary<string, string> serialDevices;
-        public ObservableCollection<SerialDevice> SerialDevices { get; set; }
+                SetupControls();
+
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+        }
 
         public ObservableCollection<int> Data { get; set; }
 
-        async Task work()
+        async Task SetupControls()
         {
-            var serialDeviceSelector = Windows.Devices.SerialCommunication.SerialDevice.GetDeviceSelector();
+            imgWire1.Source = new BitmapImage(new Uri("ms-appx:///Assets/wire-disconnected.png"));
 
-            var watcher = Windows.Devices.Enumeration.DeviceInformation.CreateWatcher(serialDeviceSelector);
-            watcher.Added += (DeviceWatcher sender, DeviceInformation args) =>
-            {
-                if (args.Name.Contains("mbed"))
-                {
-                    Debug.WriteLine(string.Format("Found device '{0}'", args.Name));
-                    RunOnGUI(
-                        () =>
-                        {
-                            SerialDevices.Add(new SerialDevice { Id = args.Id, Name = args.Name });
-                            this.imgWire1.Source = new BitmapImage(new Uri("ms-appx:///Assets/wire0.png"));
-                        });
-                    // this.Process(args.Id);
-                }
-            };
-            watcher.Removed += (DeviceWatcher sender, DeviceInformationUpdate args) =>
-            {
-                RunOnGUI(
-                    () =>
-                    {
-                        var first = SerialDevices.FirstOrDefault(_ => _.Id == args.Id);
-                        if (first != null)
-                        {
-                            SerialDevices.Remove(first);
-                            if (SerialDevices.Count == 0)
-                            {
-                                imgWire1.Source = new BitmapImage(new Uri("ms-appx:///Assets/wire-disconnected.png"));
-                            }
-                        }
-                    });
-                Debug.WriteLine(string.Format("removed device '{0}'", args.Id));
+            this.textBlockStreamName.Text = this.streamName;
 
-            };
-            watcher.Start();
+            this.serialDataTransfer = MakeDataTransferStoryBoard(this.imgBall1, 2);
+            this.cloudDataTransfer = MakeDataTransferStoryBoard(this.imgBall2, 3);
+
+            this.state.serialWire = new ConnectionState(this.imgWire1, this.serialDataTransfer, RunOnGUI);
+            this.state.cloudWire = new ConnectionState(this.imgWire2, this.cloudDataTransfer, RunOnGUI);
+
+            this.state.serialWire.Update(WireState.Cut);
+            this.state.serialWire.Update(DataFlow.Stopped);
+            this.state.cloudWire.Update(WireState.Solid);
+            this.state.cloudWire.Update(DataFlow.Stopped);
+
+            SetupDeviceWatchers();
+
+            timer = new DispatcherTimer();
+            timer.Tick += timer_Tick;
+            timer.Interval = TimeSpan.FromSeconds(3);
+            timer.Start();
+
+            this.buttonChange.Click += ButtonChange_Click;
+        }
+
+        // On startup or when the stream name changes, create a new 
+        bool needToCreateNewStream = true;
+
+        private async void ButtonChange_Click(object sender, RoutedEventArgs e)
+        {
+            var changeDlg = new ChangeStreamNameDialog(streamName);
+            await changeDlg.ShowAsync();
+            if (changeDlg.IsNameChanged)
+            {
+                this.streamName = changeDlg.StreamName;
+                this.textBlockStreamName.Text = this.streamName;
+                needToCreateNewStream = true;
+            }
         }
 
         private void RunOnGUI(Action action)

@@ -5,7 +5,9 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
+using Windows.System.Threading;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace CloudClient
 {
@@ -24,23 +26,31 @@ namespace CloudClient
             Inside_object
         }
 
-        public async Task Process(string id)
+        public async Task ReadDataFromSerialPort(string id)
         {
             var device = await Windows.Devices.SerialCommunication.SerialDevice.FromIdAsync(id);
             device.BaudRate = 115200;
 
             var currentStr = "";
             State state = State.Outside_of_object;
+            var buffer = new Windows.Storage.Streams.Buffer(bufferSize);
+
+            totalBytesReadFromSerial = 0;
+
             while (true)
             {
-                var buffer = new Windows.Storage.Streams.Buffer(bufferSize);
                 try
                 {
                     var result = await device.InputStream.ReadAsync(buffer, bufferSize, Windows.Storage.Streams.InputStreamOptions.None);
                     if (result.Length > 0)
                     {
+                        this.state.serialWire.Update(WireState.Solid);
+                        this.state.serialWire.Update(DataFlow.Active);
+
+                        totalBytesReadFromSerial += result.Length;
+
                         var str = System.Text.Encoding.ASCII.GetString(result.ToArray());
-                        Debug.WriteLine(string.Format("-->{0}<--", str));
+                        Debug.WriteLine(string.Format("[{0}]", str));
                         foreach (var c in str)
                         {
                             switch (c)
@@ -93,6 +103,8 @@ namespace CloudClient
                 }
                 catch (Exception)
                 {
+                    this.state.serialWire.Update(DataFlow.Stopped);
+                    this.state.serialWire.Update(WireState.Cut);
                     device.Dispose();
                     break;
                 }
@@ -104,19 +116,21 @@ namespace CloudClient
             try
             {
                 var data = JsonConvert.DeserializeObject<DataRecord>(json);
-                await SendDataToCloud(data);
-                RunOnGUI(() =>
+                try
                 {
-                    UpdateStartStopButton();
-                    this.Data.Insert(0, data.Light);
-                    this.data.SelectedIndex = 0;
-                });
+                    await SendDataToCloud(data, this.needToCreateNewStream);
+                }
+                catch
+                {
+                    this.state.cloudWire.Update(WireState.Cut);
+                    this.state.cloudWire.Update(DataFlow.Stopped);
+                }
+                this.needToCreateNewStream = false;
             }
             catch (JsonException)
             {
                 // We have bad data, ignore
             }
-
         }
     }
 }
