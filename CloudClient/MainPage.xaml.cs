@@ -89,13 +89,10 @@ namespace CloudClient
         {
             this.usbDevices = new List<UsbDevice>();
             this.serialDevices = new List<SerialDevice>();
-            Data = new ObservableCollection<int>();
 
             this.InitializeComponent();
             SetupControls();
         }
-
-        public ObservableCollection<int> Data { get; set; }
 
         async Task SetupControls()
         {
