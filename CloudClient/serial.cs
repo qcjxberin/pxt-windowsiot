@@ -114,14 +114,13 @@ namespace CloudClient
                 var jsonObject = JObject.Parse(json);
                 try
                 {
-                    await SendDataToCloud(jsonObject, this.needToCreateNewStream);
+                    await SendDataToCloud(jsonObject);
                 }
                 catch
                 {
                     this.state.cloudWire.Update(WireState.Cut);
                     this.state.cloudWire.Update(DataFlow.Stopped);
                 }
-                this.needToCreateNewStream = false;
             }
             catch (JsonException)
             {

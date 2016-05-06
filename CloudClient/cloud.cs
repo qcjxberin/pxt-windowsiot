@@ -32,8 +32,7 @@ namespace CloudClient
         public string Name;
         public string Id;
         public string Key;
-        List<string> Fields = new List<string>();
-        List<List<string>> Values = new List<List<string>>();
+        public List<string> Buffer = new List<string>();
     }
 
     public sealed partial class MainPage : Page
@@ -72,24 +71,23 @@ namespace CloudClient
             return (long)dt.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
         }
 
-        List<string> buffer = new List<string>();
-        int batch = 16;
+        const int batch = 4;
 
         int totalMessagesSent = 0;
-        async Task SendDataToCloud(JObject jsonObject, bool resetStream)
+        async Task SendDataToCloud(JObject jsonObject)
         {
             string objectStreamName = jsonObject.Value<string>("stream");
 
             if (objectStreamName == null) return; // bad data
 
-            CloudStream thisObjectStream;
+            CloudStream stream;
 
             // Have we already created this stream?
-            if(!streams.TryGetValue(objectStreamName, out thisObjectStream))
+            if(!streams.TryGetValue(objectStreamName, out stream))
             {
                 // No, create one
-                thisObjectStream = await CreateStream(objectStreamName);
-                streams.Add(objectStreamName, thisObjectStream);
+                stream = await CreateStream(objectStreamName);
+                streams.Add(objectStreamName, stream);
             }
 
             List<KeyValuePair<string, string>> valuesSansStream = new List<KeyValuePair<string, string>>();
@@ -104,23 +102,23 @@ namespace CloudClient
             valueRecord.AppendFormat("[{0},", ToMsSinceEpoch(DateTime.Now).ToString());
             valueRecord.AppendFormat("{0}]", string.Join(",", valuesSansStream.Select(_ => _.Value)));
 
-            buffer.Add(valueRecord.ToString());
+            stream.Buffer.Add(valueRecord.ToString());
 
-            if (buffer.Count < batch)
+            if (stream.Buffer.Count < batch)
             {
                 // We've saved it. It will be posted later
                 return;
             }
 
-            var postToStreamUri = string.Format("{0}/api/{1}/data?privatekey={2}", baseUri, thisObjectStream.Id, thisObjectStream.Key);
+            var postToStreamUri = string.Format("{0}/api/{1}/data?privatekey={2}", baseUri, stream.Id, stream.Key);
 
             // TODO: what if the number of fields for this object is different? Should we error out or create a new stream?
 
             var postBody = new StringBuilder();
             postBody.AppendFormat( @"{{""fields"": [""timestamp"",{0}", string.Join(",", valuesSansStream.Select(_ => string.Format("\"{0}\"",_.Key))));
-            postBody.AppendFormat(@"],""values"" : [{0}]}}", string.Join(",", buffer));
+            postBody.AppendFormat(@"],""values"" : [{0}]}}", string.Join(",", stream.Buffer));
 
-            buffer.Clear();
+            stream.Buffer.Clear();
 
             var postContent = new StringContent(postBody.ToString(), Encoding.UTF8, "application/json");
 

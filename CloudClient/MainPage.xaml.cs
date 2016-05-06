@@ -87,7 +87,6 @@ namespace CloudClient
 
         public MainPage()
         {
-            this.needToCreateNewStream = true;
             this.usbDevices = new List<UsbDevice>();
             this.serialDevices = new List<SerialDevice>();
             Data = new ObservableCollection<int>();
@@ -120,9 +119,6 @@ namespace CloudClient
             timer.Interval = TimeSpan.FromSeconds(3);
             timer.Start();
         }
-
-        // On startup or when the stream name changes, create a new 
-        bool needToCreateNewStream = true;
 
         private void RunOnGUI(Action action)
         {
