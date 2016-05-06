@@ -57,9 +57,8 @@
             <TextBlock                                     Grid.Row ="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Throughput:" VerticalAlignment="Bottom" FontSize="24"/>
             <TextBlock x:Name="textBlockDataRate"          Grid.Row ="2" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="200,0,0,0" Text="0 bytes per second" VerticalAlignment="Bottom"  FontSize="24" Width="400" />
 
-            <TextBlock                                     Grid.Row ="3" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Stream name:" VerticalAlignment="Bottom" FontSize="24"/>
-            <TextBlock x:Name="textBlockStreamName"        Grid.Row ="3" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="200,0,0,0" Text="???" VerticalAlignment="Bottom"  FontSize="24" Width="400" />
-            <Button x:Name="buttonChange" Content="Change" Grid.Row ="3" Grid.Column="4" Grid.ColumnSpan="1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0" UseLayoutRounding="False"  d:LayoutRounding="Auto" />
+            <TextBlock                                     Grid.Row ="3" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Messages sent:" VerticalAlignment="Bottom" FontSize="24"/>
+            <TextBlock x:Name="textBlockMsgCount"          Grid.Row ="3" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="200,0,0,0" Text="0" VerticalAlignment="Bottom"  FontSize="24" Width="100" />
 
         </Grid>
 

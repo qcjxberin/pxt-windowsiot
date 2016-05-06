@@ -53,7 +53,6 @@ namespace CloudClient
     {
         private Storyboard serialDataTransfer;
         private Storyboard cloudDataTransfer;
-        private string streamName;
         private DispatcherTimer timer;
 
         static Storyboard MakeDataTransferStoryBoard(UIElement uiElement, double seconds)
@@ -88,21 +87,13 @@ namespace CloudClient
 
         public MainPage()
         {
-            this.streamName = "";
             this.needToCreateNewStream = true;
             this.usbDevices = new List<UsbDevice>();
             this.serialDevices = new List<SerialDevice>();
             Data = new ObservableCollection<int>();
 
-            GetStreamName().ContinueWith((streamName) =>
-            {
-                this.streamName = streamName.Result;
-
-                this.InitializeComponent();
-
-                SetupControls();
-
-            }, TaskScheduler.FromCurrentSynchronizationContext());
+            this.InitializeComponent();
+            SetupControls();
         }
 
         public ObservableCollection<int> Data { get; set; }
@@ -110,8 +101,6 @@ namespace CloudClient
         async Task SetupControls()
         {
             imgWire1.Source = new BitmapImage(new Uri("ms-appx:///Assets/wire-disconnected.png"));
-
-            this.textBlockStreamName.Text = this.streamName;
 
             this.serialDataTransfer = MakeDataTransferStoryBoard(this.imgBall1, 2);
             this.cloudDataTransfer = MakeDataTransferStoryBoard(this.imgBall2, 3);
@@ -130,24 +119,10 @@ namespace CloudClient
             timer.Tick += timer_Tick;
             timer.Interval = TimeSpan.FromSeconds(3);
             timer.Start();
-
-            this.buttonChange.Click += ButtonChange_Click;
         }
 
         // On startup or when the stream name changes, create a new 
         bool needToCreateNewStream = true;
-
-        private async void ButtonChange_Click(object sender, RoutedEventArgs e)
-        {
-            var changeDlg = new ChangeStreamNameDialog(streamName);
-            await changeDlg.ShowAsync();
-            if (changeDlg.IsNameChanged)
-            {
-                this.streamName = changeDlg.StreamName;
-                this.textBlockStreamName.Text = this.streamName;
-                needToCreateNewStream = true;
-            }
-        }
 
         private void RunOnGUI(Action action)
         {

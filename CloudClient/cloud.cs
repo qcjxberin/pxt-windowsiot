@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,6 +7,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
+using System.Linq;
 
 namespace CloudClient
 {
@@ -25,21 +27,24 @@ namespace CloudClient
         public long quotaLeft;
     }
 
-    struct PostRecord
+    class CloudStream
     {
-        public long timestamp;
-        public int data;
+        public string Name;
+        public string Id;
+        public string Key;
+        List<string> Fields = new List<string>();
+        List<List<string>> Values = new List<List<string>>();
     }
 
     public sealed partial class MainPage : Page
     {
         HttpClient client = new HttpClient();
+
+        Dictionary<string, CloudStream> streams = new Dictionary<string, CloudStream>();
+
         string baseUri = "https://www.pxt.io";
 
-        string streamId;
-        string streamPrivateKey;
-
-        async Task CreateStream(string streamName)
+        async Task<CloudStream> CreateStream(string streamName)
         {
             var createStreamUri = baseUri + "/api/streams";
             var postBody = string.Format(@"{{""name"": ""{0}"", ""target"": ""microbit""}}", streamName);
@@ -54,11 +59,12 @@ namespace CloudClient
                     {
                         string result = await responseContent.ReadAsStringAsync();
                         var responseObj = JsonConvert.DeserializeObject<CreateStreamResponse>(result);
-                        streamId = responseObj.id;
-                        streamPrivateKey = responseObj.privatekey;
+                        Debug.WriteLine("Created stream Id={0}, key={1}", responseObj.id, responseObj.privatekey);
+                        return new CloudStream { Name = streamName, Id = responseObj.id, Key = responseObj.privatekey };
                     }
                 }
             }
+            throw new Exception("Cannot create stream");
         }
 
         long ToMsSinceEpoch(DateTime dt)
@@ -66,43 +72,55 @@ namespace CloudClient
             return (long)dt.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
         }
 
-        List<PostRecord> records = new List<PostRecord>();
+        List<string> buffer = new List<string>();
         int batch = 16;
 
-        async Task SendDataToCloud(DataRecord record, bool resetStream)
+        int totalMessagesSent = 0;
+        async Task SendDataToCloud(JObject jsonObject, bool resetStream)
         {
-            var fieldName = "light";
+            string objectStreamName = jsonObject.Value<string>("stream");
 
-            if (resetStream)
+            if (objectStreamName == null) return; // bad data
+
+            CloudStream thisObjectStream;
+
+            // Have we already created this stream?
+            if(!streams.TryGetValue(objectStreamName, out thisObjectStream))
             {
-                await CreateStream(this.streamName);
+                // No, create one
+                thisObjectStream = await CreateStream(objectStreamName);
+                streams.Add(objectStreamName, thisObjectStream);
             }
 
-            Debug.Assert(streamId != null);
-            Debug.Assert(streamPrivateKey != null);
-
-            if (records.Count < batch)
+            List<KeyValuePair<string, string>> valuesSansStream = new List<KeyValuePair<string, string>>();
+            foreach (var kv in jsonObject)
             {
-                records.Add(new PostRecord { timestamp = ToMsSinceEpoch(DateTime.Now), data = record.Light });
+                if (kv.Key != "stream")
+                    valuesSansStream.Add(new KeyValuePair<string, string>(kv.Key, kv.Value.ToString()));
+            }
+
+            // Create a value record for this object
+            StringBuilder valueRecord = new StringBuilder();
+            valueRecord.AppendFormat("[{0},", ToMsSinceEpoch(DateTime.Now).ToString());
+            valueRecord.AppendFormat("{0}]", string.Join(",", valuesSansStream.Select(_ => _.Value)));
+
+            buffer.Add(valueRecord.ToString());
+
+            if (buffer.Count < batch)
+            {
+                // We've saved it. It will be posted later
                 return;
             }
 
-            var postToStreamUri = baseUri + "/api/" + streamId + "/data?privatekey=" + streamPrivateKey;
+            var postToStreamUri = string.Format("{0}/api/{1}/data?privatekey={2}", baseUri, thisObjectStream.Id, thisObjectStream.Key);
+
+            // TODO: what if the number of fields for this object is different? Should we error out or create a new stream?
 
             var postBody = new StringBuilder();
+            postBody.AppendFormat( @"{{""fields"": [""timestamp"",{0}", string.Join(",", valuesSansStream.Select(_ => string.Format("\"{0}\"",_.Key))));
+            postBody.AppendFormat(@"],""values"" : [{0}]}}", string.Join(",", buffer));
 
-            postBody.AppendFormat( @"{{""fields"": [""timestamp"", ""{0}""],", fieldName);
-            postBody.AppendFormat(@"""values"" : [");
-
-            for (int i = 0; i < records.Count; ++i)
-            {
-                if (i > 0) postBody.AppendFormat(",");
-                postBody.AppendFormat("[{0}, {1}]", records[i].timestamp, records[i].data);
-            }
-
-            records.Clear();
-
-            postBody.Append(@"]}");
+            buffer.Clear();
 
             var postContent = new StringContent(postBody.ToString(), Encoding.UTF8, "application/json");
 
@@ -116,6 +134,12 @@ namespace CloudClient
                         var responseObj = JsonConvert.DeserializeObject<PostToStreamResponse>(result);
                         this.state.cloudWire.Update(DataFlow.Active);
                         this.state.cloudWire.Update(WireState.Solid);
+
+                        totalMessagesSent += batch;
+                        RunOnGUI(() =>
+                        {
+                            textBlockMsgCount.Text = totalMessagesSent.ToString();
+                        });
                     }
                 }
                 else if (response.StatusCode == (System.Net.HttpStatusCode)429)
@@ -130,7 +154,6 @@ namespace CloudClient
                     this.state.cloudWire.Update(WireState.Cut);
                 }
             }
-
         }
     }
 }

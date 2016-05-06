@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -11,11 +12,6 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace CloudClient
 {
-    class DataRecord
-    {
-        public int Light;
-    }
-
     public sealed partial class MainPage : Page
     {
         const int bufferSize = 32;
@@ -115,10 +111,10 @@ namespace CloudClient
         {
             try
             {
-                var data = JsonConvert.DeserializeObject<DataRecord>(json);
+                var jsonObject = JObject.Parse(json);
                 try
                 {
-                    await SendDataToCloud(data, this.needToCreateNewStream);
+                    await SendDataToCloud(jsonObject, this.needToCreateNewStream);
                 }
                 catch
                 {
@@ -129,7 +125,7 @@ namespace CloudClient
             }
             catch (JsonException)
             {
-                // We have bad data, ignore
+                // We have bad data, ignore and get a new a new entry
             }
         }
     }
