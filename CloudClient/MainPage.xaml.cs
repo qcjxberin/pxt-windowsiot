@@ -103,6 +103,7 @@ namespace CloudClient
 
             this.state.serialWire = new ConnectionState(this.imgWire1, this.serialDataTransfer, RunOnGUI);
             this.state.cloudWire = new ConnectionState(this.imgWire2, this.cloudDataTransfer, RunOnGUI);
+            this.state.lastStreamName = new LastStreamName(this.textStreamName, RunOnGUI);
 
             this.state.serialWire.Update(WireState.Cut);
             this.state.serialWire.Update(DataFlow.Stopped);

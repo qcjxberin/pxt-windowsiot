@@ -71,7 +71,7 @@ namespace CloudClient
             return (long)dt.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
         }
 
-        const int batch = 4;
+        const int batch = 16;
 
         int totalMessagesSent = 0;
         async Task SendDataToCloud(JObject jsonObject)
@@ -89,6 +89,8 @@ namespace CloudClient
                 stream = await CreateStream(objectStreamName);
                 streams.Add(objectStreamName, stream);
             }
+
+            this.state.lastStreamName.Update(stream.Name);
 
             List<KeyValuePair<string, string>> valuesSansStream = new List<KeyValuePair<string, string>>();
             foreach (var kv in jsonObject)

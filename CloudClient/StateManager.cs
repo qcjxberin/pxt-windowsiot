@@ -64,10 +64,33 @@ namespace CloudClient
         }
     }
 
+    class LastStreamName
+    {
+        string value;
+        TextBlock textBlock;
+        Action<Action> guiDispatcher;
+
+        public LastStreamName(TextBlock textBlock, Action<Action> guiDispatcher)
+        {
+            this.value = "";
+            this.textBlock = textBlock;
+            this.guiDispatcher = guiDispatcher;
+        }
+
+        public void Update(string newValue)
+        {
+            if (this.value != newValue)
+            {
+                guiDispatcher(() => { this.textBlock.Text = newValue; });
+            }
+        }
+    }
+
     struct StateHolder
     {
         public ConnectionState serialWire;
         public ConnectionState cloudWire;
+        public LastStreamName lastStreamName;
     }
 
     public sealed partial class MainPage

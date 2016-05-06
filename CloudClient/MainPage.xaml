@@ -60,6 +60,9 @@
             <TextBlock                                     Grid.Row ="3" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Messages sent:" VerticalAlignment="Bottom" FontSize="24"/>
             <TextBlock x:Name="textBlockMsgCount"          Grid.Row ="3" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="200,0,0,0" Text="0" VerticalAlignment="Bottom"  FontSize="24" Width="100" />
 
+            <TextBlock                                     Grid.Row ="4" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Stream Name:" VerticalAlignment="Bottom" FontSize="24"/>
+            <TextBlock x:Name="textStreamName"             Grid.Row ="4" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="200,0,0,0" Text="" VerticalAlignment="Bottom"  FontSize="24" Width="400" />
+
         </Grid>
 
         <TextBlock x:Name="textBlockStatus"                 Grid.Row ="2" Grid.Column="0" Grid.ColumnSpan="5" HorizontalAlignment="Left" Margin="10,0,0,10" Text="" VerticalAlignment="Bottom" FontSize="18" Width="800" />
