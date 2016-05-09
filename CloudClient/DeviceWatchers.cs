@@ -27,13 +27,15 @@ namespace CloudClient
     {
         private List<UsbDevice> usbDevices;
         private List<SerialDevice> serialDevices;
+        DeviceWatcher serialDeviceWatcher;
+        DeviceWatcher usbConnectedDevicesWatcher;
 
         private static string GUID_DEVINTERFACE_USB_DEVICE = "A5DCBF10-6530-11D2-901F-00C04FB951ED";
 
         void SetupDeviceWatchers()
         {
             var serialDeviceSelector = Windows.Devices.SerialCommunication.SerialDevice.GetDeviceSelector();
-            var serialDeviceWatcher = Windows.Devices.Enumeration.DeviceInformation.CreateWatcher(serialDeviceSelector);
+            serialDeviceWatcher = DeviceInformation.CreateWatcher(serialDeviceSelector);
             serialDeviceWatcher.Added += (DeviceWatcher sender, DeviceInformation args) =>
             {
                 RunOnGUI(() =>
@@ -52,6 +54,7 @@ namespace CloudClient
             {
                 RunOnGUI(() =>
                 {
+                    Debug.WriteLine(string.Format("Removed device '{0}'", args.Id));
                     serialDevices.RemoveAll(_ => _.Id == args.Id);
                     if (!serialDevices.Any())
                     {
@@ -66,7 +69,7 @@ namespace CloudClient
 
             var deviceClass = "(System.Devices.InterfaceClassGuid:=\"{" + GUID_DEVINTERFACE_USB_DEVICE + "}\")";
 
-            var usbConnectedDevicesWatcher = DeviceInformation.CreateWatcher(deviceClass);
+            usbConnectedDevicesWatcher = DeviceInformation.CreateWatcher(deviceClass);
             usbConnectedDevicesWatcher.Added += (DeviceWatcher sender, DeviceInformation args) =>
             {
                 RunOnGUI(() =>
