@@ -93,7 +93,7 @@ namespace CloudClient
 
             this.InitializeComponent();
 
-            this.httpServer = new HttpServer(8002);
+            this.httpServer = new HttpServer(this.dataSender);
             this.httpServer.Start();
 
             SetupControls();
@@ -108,7 +108,9 @@ namespace CloudClient
 
             this.state.serialWire = new ConnectionState(this.imgWire1, this.serialDataTransfer, RunOnGUI);
             this.state.cloudWire = new ConnectionState(this.imgWire2, this.cloudDataTransfer, RunOnGUI);
-            this.state.lastStreamName = new LastStreamName(this.textStreamName, RunOnGUI);
+            this.state.streamName = new TextBlockState(this.textStreamName, "", RunOnGUI);
+            this.state.messagesSent = new TextBlockState(this.textBlockMsgCount, "0", RunOnGUI);
+            this.state.streamId = new TextBlockState(this.textStreamId, "", RunOnGUI);
 
             this.state.serialWire.Update(WireState.Cut);
             this.state.serialWire.Update(DataFlow.Stopped);

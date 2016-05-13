@@ -22,18 +22,16 @@ namespace CloudClient
 
         private readonly StreamSocketListener listener;
 
-        private int port = 8002;
+        private const int port = 8002;
 
         public delegate void HttpRequestReceivedEvent(HTTPRequest request);
-        public event HttpRequestReceivedEvent OnRequestReceived;
 
-        public HttpServer(int serverPort)
+        CloudDataSender dataSender;
+
+        public HttpServer(CloudDataSender dataSender)
         {
-            if (listener == null)
-            {
-                listener = new StreamSocketListener();
-            }
-            port = serverPort;
+            this.listener = new StreamSocketListener();
+            this.dataSender = dataSender;
 
             listener.ConnectionReceived += (s, e) => ProcessRequestAsync(e.Socket);
         }
@@ -69,7 +67,7 @@ namespace CloudClient
                 }
                 else
                 {
-                    throw new InvalidDataException("HTTP method not supported: " + request.Method);
+                    // just ignore it
                 }
             }
         }
@@ -87,7 +85,22 @@ namespace CloudClient
                 // When this fires, either make the buffer bigger or read in chunks
                 Debug.Assert(result.Length < BufferSize);
 
-                byte[] bodyArray = result.ToArray();
+                var str = Encoding.UTF8.GetString(result.ToArray());
+
+                int streamId = 0;
+
+                // Inject the stream ID into the string
+                try
+                {
+                    streamId = dataSender.GetCurrentStream().Id;
+                }
+                catch
+                {
+                    // Could not connect. TODO: show error
+                }
+                str = string.Format(str, streamId);
+
+                byte[] bodyArray = Encoding.UTF8.GetBytes(str);
 
                 MemoryStream memoryStream = new MemoryStream(bodyArray);
                 string header = String.Format("HTTP/1.1 200 OK\r\n" +

@@ -64,15 +64,15 @@ namespace CloudClient
         }
     }
 
-    class LastStreamName
+    class TextBlockState
     {
         string value;
         TextBlock textBlock;
         Action<Action> guiDispatcher;
 
-        public LastStreamName(TextBlock textBlock, Action<Action> guiDispatcher)
+        public TextBlockState(TextBlock textBlock, string initialText, Action<Action> guiDispatcher)
         {
-            this.value = "";
+            this.value = initialText;
             this.textBlock = textBlock;
             this.guiDispatcher = guiDispatcher;
         }
@@ -90,7 +90,9 @@ namespace CloudClient
     {
         public ConnectionState serialWire;
         public ConnectionState cloudWire;
-        public LastStreamName lastStreamName;
+        public TextBlockState streamName;
+        public TextBlockState streamId;
+        public TextBlockState messagesSent;
     }
 
     public sealed partial class MainPage

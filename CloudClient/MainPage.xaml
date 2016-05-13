@@ -30,9 +30,10 @@
                 <ColumnDefinition Width="100"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="50" />
+                <RowDefinition Height="10" />
                 <RowDefinition Height="140" />
                 <RowDefinition Height="60" />
+                <RowDefinition Height="40" />
                 <RowDefinition Height="40" />
                 <RowDefinition Height="40" />
                 <RowDefinition />
@@ -62,6 +63,9 @@
 
             <TextBlock                                     Grid.Row ="4" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Stream Name:" VerticalAlignment="Bottom" FontSize="24"/>
             <TextBlock x:Name="textStreamName"             Grid.Row ="4" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="200,0,0,0" Text="" VerticalAlignment="Bottom"  FontSize="24" Width="400" />
+
+            <TextBlock                                     Grid.Row ="5" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Stream Id:" VerticalAlignment="Bottom" FontSize="24"/>
+            <TextBlock x:Name="textStreamId"               Grid.Row ="5" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="200,0,0,0" Text="" VerticalAlignment="Bottom"  FontSize="24" Width="400" />
 
         </Grid>
 
