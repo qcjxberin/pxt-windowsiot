@@ -29,7 +29,7 @@ using Windows.Devices.Usb;
 namespace CloudClient
 {
     [DebuggerDisplay("Name = {Name}, IsEnabled = {IsEnabled}")]
-    public class UsbDevice
+    public class UsbDeviceInfo
     {
         public string Id { get; set; }
         public string Name { get; set; }
@@ -38,7 +38,7 @@ namespace CloudClient
     }
 
     [DebuggerDisplay("Name = {Name}, IsEnabled = {IsEnabled}")]
-    public class SerialDevice
+    public class SerialDeviceInfo
     {
         public string Id { get; set; }
         public string Name { get; set; }
@@ -54,6 +54,7 @@ namespace CloudClient
         private Storyboard serialDataTransfer;
         private Storyboard cloudDataTransfer;
         private DispatcherTimer timer;
+        private HttpServer httpServer;
 
         static Storyboard MakeDataTransferStoryBoard(UIElement uiElement, double seconds)
         {
@@ -87,10 +88,14 @@ namespace CloudClient
 
         public MainPage()
         {
-            this.usbDevices = new List<UsbDevice>();
-            this.serialDevices = new List<SerialDevice>();
+            this.usbDevices = new List<UsbDeviceInfo>();
+            this.serialDevices = new List<SerialDeviceInfo>();
 
             this.InitializeComponent();
+
+            this.httpServer = new HttpServer(8002);
+            this.httpServer.Start();
+
             SetupControls();
         }
 

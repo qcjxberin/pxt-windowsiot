@@ -25,8 +25,8 @@ namespace CloudClient
 {
     public sealed partial class MainPage
     {
-        private List<UsbDevice> usbDevices;
-        private List<SerialDevice> serialDevices;
+        private List<UsbDeviceInfo> usbDevices;
+        private List<SerialDeviceInfo> serialDevices;
         DeviceWatcher serialDeviceWatcher;
         DeviceWatcher usbConnectedDevicesWatcher;
 
@@ -43,7 +43,7 @@ namespace CloudClient
                     if (args.Name.ToLower().Contains("mbed") || args.Name.Contains("DAPLink CMSIS-DAP"))
                     {
                         Debug.WriteLine(string.Format("Found device '{0}'", args.Name));
-                        serialDevices.Add(new SerialDevice { Active = args.IsEnabled, Id = args.Id, Name = args.Name });
+                        serialDevices.Add(new SerialDeviceInfo { Active = args.IsEnabled, Id = args.Id, Name = args.Name });
                         this.state.serialWire.Update(WireState.Solid);
                         timer_Tick(null, null);
                         this.ReadDataFromSerialPort(args.Id);
@@ -74,7 +74,7 @@ namespace CloudClient
             {
                 RunOnGUI(() =>
                 {
-                    this.usbDevices.Add(new UsbDevice { Id = args.Id, Name = args.Name, IsEnabled = args.IsEnabled });
+                    this.usbDevices.Add(new UsbDeviceInfo { Id = args.Id, Name = args.Name, IsEnabled = args.IsEnabled });
                 });
             };
 
