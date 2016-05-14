@@ -21,9 +21,9 @@
         </Grid.RowDefinitions>
 
 
-        <Grid Background="{ThemeResource AppBarBackgroundThemeBrush}" Grid.Row ="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="50,125,52,145" >
+        <Grid Background="{ThemeResource AppBarBackgroundThemeBrush}" Grid.Row ="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" >
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="118"/>
+                <ColumnDefinition Width="100"/>
                 <ColumnDefinition Width="190"/>
                 <ColumnDefinition Width="100"/>
                 <ColumnDefinition Width="190"/>
@@ -31,12 +31,13 @@
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="10" />
-                <RowDefinition Height="140" />
-                <RowDefinition Height="60" />
-                <RowDefinition Height="40" />
-                <RowDefinition Height="40" />
-                <RowDefinition Height="40" />
-                <RowDefinition />
+                <RowDefinition Height="100" />
+                <RowDefinition Height="220" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
             </Grid.RowDefinitions>
 
             <Grid.RenderTransform>
@@ -55,21 +56,27 @@
 
             <Image x:Name="imgCloud" Source="Assets\cloud.png" Grid.Row ="1" Grid.Column="4" HorizontalAlignment="Center" Height="96" Margin="4,4,0,0" VerticalAlignment="Top"/>
 
-            <TextBlock                                     Grid.Row ="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Throughput:" VerticalAlignment="Bottom" FontSize="24"/>
-            <TextBlock x:Name="textBlockDataRate"          Grid.Row ="2" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="200,0,0,0" Text="0 bytes per second" VerticalAlignment="Bottom"  FontSize="24" Width="400" />
+            <Button x:Name="buttonA"                       Grid.Row ="2"  Grid.Column="1" Width="100" Content="Pause"  HorizontalAlignment="Center" Margin="43,93,47.4,84"  VerticalAlignment="Center"/>
+            <Image Source="Assets\button_A.png"            Grid.Row ="2"  Grid.Column="1" HorizontalAlignment="Center" Margin="0,0,0,0" Height="96" VerticalAlignment="Bottom"/>
 
-            <TextBlock                                     Grid.Row ="3" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Messages sent:" VerticalAlignment="Bottom" FontSize="24"/>
-            <TextBlock x:Name="textBlockMsgCount"          Grid.Row ="3" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="200,0,0,0" Text="0" VerticalAlignment="Bottom"  FontSize="24" Width="100" />
+            <Button x:Name="buttonB"                       Grid.Row ="2"  Grid.Column="3" Width="100" Content="New Stream"  HorizontalAlignment="Center" Margin="0,0,0,0"  VerticalAlignment="Center"/>
+            <Image Source="Assets\button_B.png"            Grid.Row ="2"  Grid.Column="3" HorizontalAlignment="Center" Margin="0,0,0,0" Height="96" VerticalAlignment="Top"/>
 
-            <TextBlock                                     Grid.Row ="4" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Stream Name:" VerticalAlignment="Bottom" FontSize="24"/>
-            <TextBlock x:Name="textStreamName"             Grid.Row ="4" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="200,0,0,0" Text="" VerticalAlignment="Bottom"  FontSize="24" Width="400" />
+            <TextBlock                                     Grid.Row ="4" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Throughput:" VerticalAlignment="Bottom" FontSize="18"/>
+            <TextBlock x:Name="textBlockDataRate"          Grid.Row ="4" Grid.Column="1" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="200,0,0,0" Text="0 bytes per second" VerticalAlignment="Bottom"  FontSize="18" Width="400" />
 
-            <TextBlock                                     Grid.Row ="5" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Stream Id:" VerticalAlignment="Bottom" FontSize="24"/>
-            <TextBlock x:Name="textStreamId"               Grid.Row ="5" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="200,0,0,0" Text="" VerticalAlignment="Bottom"  FontSize="24" Width="400" />
+            <TextBlock                                     Grid.Row ="5" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Messages sent:" VerticalAlignment="Bottom" FontSize="18"/>
+            <TextBlock x:Name="textBlockMsgCount"          Grid.Row ="5" Grid.Column="1" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="200,0,0,0" Text="0" VerticalAlignment="Bottom"  FontSize="18" Width="100" />
+
+            <TextBlock                                     Grid.Row ="6" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Stream Name:" VerticalAlignment="Bottom" FontSize="18"/>
+            <TextBlock x:Name="textStreamName"             Grid.Row ="6" Grid.Column="1" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="200,0,0,0" Text="" VerticalAlignment="Bottom"  FontSize="18" Width="400" />
+
+            <TextBlock                                     Grid.Row ="7" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Stream Id:" VerticalAlignment="Bottom" FontSize="18"/>
+            <TextBlock x:Name="textStreamId"               Grid.Row ="7" Grid.Column="1" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="200,0,0,0" Text="" VerticalAlignment="Bottom"  FontSize="18" Width="400" />
 
         </Grid>
 
-        <TextBlock x:Name="textBlockStatus"                 Grid.Row ="2" Grid.Column="0" Grid.ColumnSpan="5" HorizontalAlignment="Left" Margin="10,0,0,10" Text="" VerticalAlignment="Bottom" FontSize="18" Width="800" />
+        <TextBlock x:Name="textBlockStatus"                 Grid.Row ="2" Grid.Column="0" Grid.ColumnSpan="5" HorizontalAlignment="Left" Margin="10,00,0,0" Text="" VerticalAlignment="Bottom" FontSize="18" Width="800" />
 
     </Grid>
 </Page>

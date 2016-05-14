@@ -123,6 +123,8 @@
     <None Include="CloudClient_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\button_A.png" />
+    <Content Include="Assets\button_B.png" />
     <Content Include="Assets\main.html" />
     <Content Include="Assets\ball.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
