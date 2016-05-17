@@ -38,8 +38,15 @@ namespace CloudClient
             });
         }
 
+        object lockObj = new object();
+        // These fields must be accessed under the lock:
+        // {
+        bool bPauseDataRead = false;
         uint totalBytesReadFromSerial = 0;
         uint totalBytesReadFromSerialAtLastTick = 0;
+        bool newStreamRequest = false;
+        // }
+
         double bytesPerSecond = 0.0;
         DateTime lastTick = DateTime.Now;
 
@@ -51,7 +58,12 @@ namespace CloudClient
             this.lastTick = now;
             this.bytesPerSecond = 0.0;
 
-            uint nBytesReadSinceLastTick = totalBytesReadFromSerial - totalBytesReadFromSerialAtLastTick;
+            uint nBytesReadSinceLastTick;
+
+            lock (lockObj)
+            {
+                nBytesReadSinceLastTick = this.totalBytesReadFromSerial - this.totalBytesReadFromSerialAtLastTick;
+            }
 
             var timeInMilliseconds = timePassed.TotalMilliseconds;
             if (timeInMilliseconds == 0)
@@ -83,7 +95,10 @@ namespace CloudClient
                 this.state.cloudWire.Update(DataFlow.Stopped);
             }
 
-            totalBytesReadFromSerialAtLastTick = totalBytesReadFromSerial;
+            lock (lockObj)
+            {
+                this.totalBytesReadFromSerialAtLastTick = this.totalBytesReadFromSerial;
+            }
 
             this.textBlockDataRate.Text = string.Format("{0:0.0} {1}", rate, unit);
         }

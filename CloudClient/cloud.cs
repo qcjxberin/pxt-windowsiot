@@ -69,6 +69,15 @@ namespace CloudClient
             return this.currentStream;
         }
 
+        public async Task ResetCurrentStream()
+        {
+            await DrainBuffer();
+
+            // clear the buffer even on error
+            this.currentStream.Buffer.Clear();
+            this.currentStream = null;
+        }
+
         private async Task CreateNewStream()
         {
             var createStreamUri = baseUri + "/api/streams";
@@ -98,6 +107,43 @@ namespace CloudClient
         // For now, all values in batch must have the same field name. This will be expanded later to support multiplexing values
         string dataFieldName = null;
 
+        private async Task<DataPushStatus> DrainBuffer()
+        {
+            var postToStreamUri = string.Format("{0}/api/{1}/data?privatekey={2}", baseUri, currentStream.Id, currentStream.Key);
+            var postBody = new StringBuilder();
+            postBody.AppendFormat(@"{{""fields"": [""timestamp"", ""partition"", ""{0}""]", dataFieldName);
+            postBody.AppendFormat(@",""values"" : [{0}]}}", string.Join(",", buffer));
+            var postContent = new StringContent(postBody.ToString(), Encoding.UTF8, "application/json");
+
+            using (var response = await client.PostAsync(postToStreamUri, postContent))
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    using (var responseContent = response.Content)
+                    {
+                        string result = await responseContent.ReadAsStringAsync();
+                        var responseObj = JsonConvert.DeserializeObject<PostToStreamResponse>(result);
+
+                        buffer.Clear();
+
+                        return DataPushStatus.Post_Succeeded;
+                    }
+                }
+                else if (response.StatusCode == (System.Net.HttpStatusCode)429)
+                {
+                    Debug.WriteLine("Too many requests!");
+                    string result = await response.Content.ReadAsStringAsync();
+                    Debug.WriteLine(result);
+
+                    return DataPushStatus.Post_Failed;
+                }
+                else
+                {
+                    return DataPushStatus.Post_Failed;
+                }
+            }
+        }
+
         public async Task<DataPushStatus> PushData(long timeStamp, int deviceID, int deviceTimeStamp, string fieldName, int value)
         {
             // The format is: timestamp, partition, value
@@ -112,47 +158,17 @@ namespace CloudClient
                 Debug.Assert(dataFieldName == fieldName); // not yet supported
             }
 
+            // Add the entry to the buffer
+            buffer.Add(entry);
+
             if (buffer.Count < entriesPerBatch)
             {
-                // Add the entry to the buffer and get out; it will be pushed to server later
-                buffer.Add(entry);
+                // Get out; it will be pushed to server later
                 return DataPushStatus.Buffered;
             }
             else
             {
-                var postToStreamUri = string.Format("{0}/api/{1}/data?privatekey={2}", baseUri, currentStream.Id, currentStream.Key);
-                var postBody = new StringBuilder();
-                postBody.AppendFormat(@"{{""fields"": [""timestamp"", ""partition"", ""{0}""]", dataFieldName);
-                postBody.AppendFormat(@",""values"" : [{0}]}}", string.Join(",", buffer));
-                var postContent = new StringContent(postBody.ToString(), Encoding.UTF8, "application/json");
-
-                using (var response = await client.PostAsync(postToStreamUri, postContent))
-                {
-                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
-                    {
-                        using (var responseContent = response.Content)
-                        {
-                            string result = await responseContent.ReadAsStringAsync();
-                            var responseObj = JsonConvert.DeserializeObject<PostToStreamResponse>(result);
-
-                            buffer.Clear();
-
-                            return DataPushStatus.Post_Succeeded;
-                        }
-                    }
-                    else if (response.StatusCode == (System.Net.HttpStatusCode)429)
-                    {
-                        Debug.WriteLine("Too many requests!");
-                        string result = await response.Content.ReadAsStringAsync();
-                        Debug.WriteLine(result);
-
-                        return DataPushStatus.Post_Failed;
-                    }
-                    else
-                    {
-                        return DataPushStatus.Post_Failed;
-                    }
-                }
+                return await DrainBuffer();
             }
         }
     }
@@ -174,6 +190,18 @@ namespace CloudClient
 
             try
             {
+                bool needNewStream = false;
+                lock (lockObj)
+                {
+                    needNewStream = this.newStreamRequest;
+                    this.newStreamRequest = false;
+                }
+
+                if (needNewStream)
+                {
+                    await dataSender.ResetCurrentStream();
+                }
+
                 stream = await dataSender.GetCurrentStream();
                 this.state.cloudWire.Update(WireState.Solid);
             }

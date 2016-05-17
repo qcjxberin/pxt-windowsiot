@@ -119,10 +119,40 @@ namespace CloudClient
 
             SetupDeviceWatchers();
 
+            buttonA.Click += ButtonA_Click;
+            buttonB.Click += ButtonB_Click;
+
             timer = new DispatcherTimer();
             timer.Tick += timer_Tick;
             timer.Interval = TimeSpan.FromSeconds(3);
             timer.Start();
+        }
+
+        private void ButtonA_Click(object sender, RoutedEventArgs e)
+        {
+            // Start/Stop data read
+            lock (lockObj)
+            {
+                this.bPauseDataRead = !this.bPauseDataRead;
+            }
+
+            if (this.bPauseDataRead)
+            {
+                this.state.serialWire.Update(DataFlow.Stopped);
+                this.buttonA.Content = "Resume";
+            }
+            else
+            {
+                this.buttonA.Content = "Stop";
+            }
+        }
+
+        private void ButtonB_Click(object sender, RoutedEventArgs e)
+        {
+            lock (lockObj)
+            {
+                this.newStreamRequest = true;
+            }
         }
 
         private void RunOnGUI(Action action)

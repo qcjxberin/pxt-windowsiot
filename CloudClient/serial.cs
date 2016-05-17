@@ -10,6 +10,7 @@ using Windows.System.Threading;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.Devices.SerialCommunication;
+using System.Threading;
 
 namespace CloudClient
 {
@@ -36,10 +37,17 @@ namespace CloudClient
                     var result = await device.InputStream.ReadAsync(buffer, bufferSize, Windows.Storage.Streams.InputStreamOptions.None);
                     if (result.Length > 0)
                     {
+                        lock (lockObj)
+                        {
+                            totalBytesReadFromSerial += result.Length;
+                            if (bPauseDataRead)
+                            {
+                                continue;
+                            }
+                        }
+
                         this.state.serialWire.Update(WireState.Solid);
                         this.state.serialWire.Update(DataFlow.Active);
-
-                        totalBytesReadFromSerial += result.Length;
 
                         var str = System.Text.Encoding.ASCII.GetString(result.ToArray());
                         Debug.WriteLine(string.Format("[{0}]", str));
@@ -106,9 +114,16 @@ namespace CloudClient
         private async Task ReadDataFromSerialPort(string id)
         {
             var device = await SerialDevice.FromIdAsync(id);
+
+            if (device == null) return;
+
             device.BaudRate = 115200;
 
-            totalBytesReadFromSerial = 0;
+            lock (lockObj)
+            {
+                this.bPauseDataRead = false;
+                this.totalBytesReadFromSerial = 0;
+            }
 
             await ReadJSON(device);
         }
