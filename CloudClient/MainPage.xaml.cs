@@ -55,6 +55,7 @@ namespace CloudClient
         private Storyboard cloudDataTransfer;
         private DispatcherTimer timer;
         private HttpServer httpServer;
+        private string currentStreamId;
 
         static Storyboard MakeDataTransferStoryBoard(UIElement uiElement, double seconds)
         {
@@ -96,6 +97,8 @@ namespace CloudClient
             this.httpServer = new HttpServer(this.dataSender);
             this.httpServer.Start();
 
+            this.currentStreamId = "";
+
             SetupControls();
         }
 
@@ -111,6 +114,7 @@ namespace CloudClient
             this.state.streamName = new TextBlockState(this.textStreamName, "", RunOnGUI);
             this.state.messagesSent = new TextBlockState(this.textBlockMsgCount, "0", RunOnGUI);
             this.state.streamId = new TextBlockState(this.textStreamId, "", RunOnGUI);
+            this.textViewStream.Visibility = Visibility.Collapsed;
 
             this.state.serialWire.Update(WireState.Cut);
             this.state.serialWire.Update(DataFlow.Stopped);
@@ -162,6 +166,12 @@ namespace CloudClient
                 {
                     action();
                 });
+        }
+
+        private async void ViewStream_Click(Windows.UI.Xaml.Documents.Hyperlink sender, Windows.UI.Xaml.Documents.HyperlinkClickEventArgs args)
+        {
+            var codeMicrobitUrl = new Uri(string.Format(@"https://codethemicrobit.com/{0}", this.currentStreamId));
+            var success = await Windows.System.Launcher.LaunchUriAsync(codeMicrobitUrl);
         }
     }
 }

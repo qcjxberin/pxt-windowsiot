@@ -14,6 +14,7 @@ input.onButtonPressed(Button.A, () => {
 radio.onDataReceived(() => {
     led.plot(2, 2)
     radio.writeValueToSerial();
+    serial.writeString("")
     basic.pause(20)
     led.unplot(2, 2)
 });

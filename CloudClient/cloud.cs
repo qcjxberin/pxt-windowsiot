@@ -241,6 +241,8 @@ namespace CloudClient
                     this.state.cloudWire.Update(WireState.Solid);
                     this.state.streamName.Update(stream.Name);
                     this.state.streamId.Update(stream.Id);
+                    this.currentStreamId = stream.Id;
+                    this.textViewStream.Visibility = Windows.UI.Xaml.Visibility.Visible;
 
                     totalMessagesSent += CloudDataSender.entriesPerBatch;
                     this.state.messagesSent.Update(totalMessagesSent.ToString());

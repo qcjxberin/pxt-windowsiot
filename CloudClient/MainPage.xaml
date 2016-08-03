@@ -38,6 +38,7 @@
                 <RowDefinition Height="20" />
                 <RowDefinition Height="20" />
                 <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
             </Grid.RowDefinitions>
 
             <Grid.RenderTransform>
@@ -62,7 +63,8 @@
             <Button x:Name="buttonB"                       Grid.Row ="2"  Grid.Column="3" Width="100" Content="New Stream"  HorizontalAlignment="Center" Margin="0,0,0,0"  VerticalAlignment="Center"/>
             <Image Source="Assets\button_B.png"            Grid.Row ="2"  Grid.Column="3" HorizontalAlignment="Center" Margin="0,0,0,0" Height="96" VerticalAlignment="Top"/>
 
-            <TextBlock                                     Grid.Row ="4" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Throughput:" VerticalAlignment="Bottom" FontSize="18"/>
+            <TextBlock                                     Grid.Row ="4" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Throughput:" VerticalAlignment="Bottom" FontSize="18" />
+
             <TextBlock x:Name="textBlockDataRate"          Grid.Row ="4" Grid.Column="1" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="200,0,0,0" Text="0 bytes per second" VerticalAlignment="Bottom"  FontSize="18" Width="400" />
 
             <TextBlock                                     Grid.Row ="5" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Messages sent:" VerticalAlignment="Bottom" FontSize="18"/>
@@ -71,8 +73,13 @@
             <TextBlock                                     Grid.Row ="6" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Stream Name:" VerticalAlignment="Bottom" FontSize="18"/>
             <TextBlock x:Name="textStreamName"             Grid.Row ="6" Grid.Column="1" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="200,0,0,0" Text="" VerticalAlignment="Bottom"  FontSize="18" Width="400" />
 
-            <TextBlock                                     Grid.Row ="7" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Stream Id:" VerticalAlignment="Bottom" FontSize="18"/>
+            <TextBlock                                     Grid.Row ="7" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" Text="Stream Id:" VerticalAlignment="Bottom" FontSize="18" />
+
             <TextBlock x:Name="textStreamId"               Grid.Row ="7" Grid.Column="1" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="200,0,0,0" Text="" VerticalAlignment="Bottom"  FontSize="18" Width="400" />
+
+            <TextBlock x:Name="textViewStream"             Grid.Row ="8" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Bottom" FontSize="18" >
+                <Hyperlink Click="ViewStream_Click">View Stream</Hyperlink>
+            </TextBlock>
 
         </Grid>
 
