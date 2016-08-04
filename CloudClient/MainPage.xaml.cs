@@ -168,6 +168,21 @@ namespace CloudClient
                 });
         }
 
+        private async void programDownload_Click(Windows.UI.Xaml.Documents.Hyperlink sender, Windows.UI.Xaml.Documents.HyperlinkClickEventArgs args)
+        {
+            var codeMicrobitUrl = new Uri(string.Format(@"https://codethemicrobit.com/--run?hex=1&code={0}", Uri.EscapeDataString(
+@"radio.setTransmitSerialNumber(true);
+radio.setGroup(44);
+let i = 0;
+radio.onDataReceived(() => {
+    led.toggle(i % 5, i / 5);
+    i = (++i % 25);
+    radio.writeValueToSerial();
+});")
+                ));
+            var success = await Windows.System.Launcher.LaunchUriAsync(codeMicrobitUrl);
+        }
+
         private async void ViewStream_Click(Windows.UI.Xaml.Documents.Hyperlink sender, Windows.UI.Xaml.Documents.HyperlinkClickEventArgs args)
         {
             var codeMicrobitUrl = new Uri(string.Format(@"https://codethemicrobit.com/{0}", this.currentStreamId));

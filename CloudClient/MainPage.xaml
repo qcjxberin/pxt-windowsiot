@@ -39,6 +39,7 @@
                 <RowDefinition Height="20" />
                 <RowDefinition Height="20" />
                 <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
             </Grid.RowDefinitions>
 
             <Grid.RenderTransform>
@@ -77,7 +78,10 @@
 
             <TextBlock x:Name="textStreamId"               Grid.Row ="7" Grid.Column="1" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="200,0,0,0" Text="" VerticalAlignment="Bottom"  FontSize="18" Width="400" />
 
-            <TextBlock x:Name="textViewStream"             Grid.Row ="8" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Bottom" FontSize="18" >
+            <TextBlock x:Name="programDownload"             Grid.Row ="8" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Bottom" FontSize="18" >
+                <Hyperlink Click="programDownload_Click">Download .hex</Hyperlink>
+            </TextBlock>
+            <TextBlock x:Name="textViewStream"             Grid.Row ="9" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Bottom" FontSize="18" >
                 <Hyperlink Click="ViewStream_Click">View Stream</Hyperlink>
             </TextBlock>
 
